@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Monkey - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.3/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.0.6/tsparticles.slim.bundle.min.js"></script>
+
+    <style>
+        @keyframes pump {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        .animate-pump {
+            animation: pump 2s infinite ease-in-out;
+        }
+
+        .animate-pump:hover {
+            animation: none;
+            transform: scale(1.03);
+        }
+
+        #tsparticles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body
+    class="flex items-center justify-center min-h-screen bg-base-200 relative selection:bg-primary selection:text-white">
+    <div id="tsparticles"></div>
+    <div class="relative z-10 w-full max-w-md p-2"
+        x-data="{ mode: new URLSearchParams(window.location.search).get('mode') === 'register' ? 'register' : 'login' }"
+        x-cloak>
+        {% if messages %}
+        <div class="alert alert-error mb-6 shadow-xl border-4 border-red-200 animate-bounce">
+            {% for message in messages %}
+            <span class="font-bold">{{ message }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="card bg-base-100 shadow-2xl border-b-8 border-r-8 border-primary/40">
+            <div class="card-body p-5 text-center">
+
+                <div class="mb-3 transform transition hover:scale-110 duration-300 inline-block">
+                    <img src="{% static 'imgs/monke.jpg' %}" alt="Math Monkey"
+                        class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-primary animate-bounce object-cover mx-auto">
+                    <h1 class="text-4xl md:text-5xl font-black text-primary tracking-tight mt-2 drop-shadow-md">
+                        MathMonkey</h1>
+                    <p class="text-sm font-bold text-sky-900 mt-2 badge badge-ghost p-2">Train your brain, earn
+                        bananas!</p>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div x-show="mode === 'login'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform scale-90"
+                    x-transition:enter-end="opacity-100 transform scale-100">
+
+                    <form action="{% url 'login_api' %}" method="POST" class="space-y-2">
+                        {% csrf_token %}
+                        <div class="form-control">
+                            <input type="text" name="username" placeholder="Username"
+                                class="input input-bordered input-primary input-md w-full text-lg font-bold bg-base-200 focus:bg-sky-100 transition-colors"
+                                required />
+                        </div>
+                        <div class="form-control">
+                            <input type="password" name="password" placeholder="Password"
+                                class="input input-bordered input-primary input-md w-full text-lg font-bold bg-base-200 focus:bg-sky-100  transition-colors"
+                                required />
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-primary btn-lg w-full text-xl font-black shadow-lg animate-pump border-b-4 border-primary-focus mt-2">
+                            Login
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="size-6">
+                                <path fill-rule="evenodd"
+                                    d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 0 1 .75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 0 1 9.75 22.5a.75.75 0 0 1-.75-.75v-4.131A15.838 15.838 0 0 1 6.382 15H2.25a.75.75 0 0 1-.75-.75 6.75 6.75 0 0 1 7.815-6.666ZM15 6.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z"
+                                    clip-rule="evenodd" />
+                                <path
+                                    d="M5.26 17.242a.75.75 0 1 0-.897-1.203 5.243 5.243 0 0 0-2.05 5.022.75.75 0 0 0 .625.627 5.243 5.243 0 0 0 5.022-2.051.75.75 0 1 0-1.202-.897 3.744 3.744 0 0 1-3.008 1.51c0-1.23.592-2.323 1.51-3.008Z" />
+                            </svg>
+                        </button>
+                    </form>
+
+                    <div class="divider my-4 font-bold text-gray-600 text-sm">OR</div>
+
+                    <form action="{% url 'guest_api' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="btn btn-secondary btn-lg w-full text-xl font-black shadow-lg animate-pump border-b-4 border-secondary-focus"
+                            style="animation-delay: 1s;">
+                            Play as Guest
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="size-6">
+                                <path fill-rule="evenodd"
+                                    d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </form>
+                    <p
+                        class="text-xs font-bold text-teal-900 mt-2 uppercase flex items-center justify-center tracking-wide ">
+                        Just play
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+                            class="size-4 mx-1">
+                            <path fill-rule="evenodd"
+                                d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM6 8c.552 0 1-.672 1-1.5S6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8Zm5-1.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5Zm.005 4.245a.75.75 0 0 0-1.06 0 2.75 2.75 0 0 1-3.89 0 .75.75 0 0 0-1.06 1.06 4.25 4.25 0 0 0 6.01 0 .75.75 0 0 0 0-1.06Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </p>
+
+                    <div class="mt-6 pt-4 border-t border-base-200">
+                        <span class="text-base">No account? </span>
+                        <a @click="mode = 'register'"
+                            class="link link-primary text-yellow-800 font-black text-lg cursor-pointer hover:text-accent">Create
+                            One</a>
+                    </div>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div x-show="mode === 'register'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform scale-90"
+                    x-transition:enter-end="opacity-100 transform scale-100" style="display: none;">
+
+                    <h2 class="text-2xl text-red-500 font-black text-secondary mb-3">Join the Jungle! 🍌</h2>
+
+                    <form action="{% url 'register_api' %}" method="POST" class="space-y-2">
+                        {% csrf_token %}
+
+                        <input type="text" name="username" placeholder="Pick a Username"
+                            class="input input-bordered input-secondary input-md w-full text-lg font-bold" required />
+
+                        <input type="email" name="email" placeholder="Email (Optional)"
+                            class="input input-bordered input-secondary input-md w-full text-lg font-bold" />
+
+                        <div class="flex flex-col gap-3">
+                            <input type="password" name="password1" placeholder="Password"
+                                class="input input-bordered input-secondary input-md w-full text-lg font-bold"
+                                required />
+                            <input type="password" name="password2" placeholder="Confirm Password"
+                                class="input input-bordered input-secondary input-md w-full text-lg font-bold"
+                                required />
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-primary btn-lg w-full text-xl font-black animate-pump shadow-lg border-b-4 border-accent-focus mt-2">
+                            Start Journey
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="size-6">
+                                <path fill-rule="evenodd"
+                                    d="M8.161 2.58a1.875 1.875 0 0 1 1.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0 1 21.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 0 1-1.676 0l-4.994-2.497a.375.375 0 0 0-.336 0l-3.868 1.935A1.875 1.875 0 0 1 2.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437ZM9 6a.75.75 0 0 1 .75.75V15a.75.75 0 0 1-1.5 0V6.75A.75.75 0 0 1 9 6Zm6.75 3a.75.75 0 0 0-1.5 0v8.25a.75.75 0 0 0 1.5 0V9Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+
+                        </button>
+                    </form>
+
+                    <div class="mt-6 pt-4 border-t border-base-200">
+                        <span class="text-base">Have an account? </span>
+                        <a @click="mode = 'login'"
+                            class="link link-secondary text-teal-900 font-black text-lg cursor-pointer hover:text-primary">Login</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            await tsParticles.load("tsparticles", {
+                particles: {
+                    number: {
+                        value: 50,
+                        density: { enable: true, value_area: 800 }
+                    },
+                    shape: {
+                        type: "char",
+                        character: {
+                            value: ["+", "-", "×", "÷", "?", "=", "1", "2", "3"],
+                            font: "Verdana",
+                            style: "",
+                            weight: "1000",
+                            fill: true
+                        }
+                    },
+                    color: {
+                        value: ["#FF5733", "#C70039", "#900C3F", "#581845", "#1d4ed8", "#7e22ce"]
+                    },
+                    size: {
+                        value: 40,
+                        random: true,
+                        anim: { enable: true, speed: 4, size_min: 30, sync: false }
+                    },
+                    opacity: {
+                        value: 0.9,
+                        random: false,
+                        anim: { enable: false }
+                    },
+                    move: {
+                        enable: true,
+                        speed: 3,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false,
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" },
+                    },
+                    modes: {
+                        repulse: { distance: 100, duration: 0.4 }
+                    }
+                },
+                retina_detect: true
+            });
+        });
+    </script>
+</body>
+
+</html>

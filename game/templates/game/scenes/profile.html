@@ -1,0 +1,120 @@
+<div class="w-full max-w-5xl mx-auto">
+    <div x-show="isLoading" class="p-20 text-center">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <div x-show="!isLoading && profileData" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card bg-base-100 shadow-xl border-t-8 border-primary md:col-span-1 h-fit animate-pump">
+            <div class="card-body items-center text-center">
+
+                <div class="avatar placeholder mb-2">
+                    <div
+                        class="bg-neutral text-neutral-content rounded-full w-24 shadow-lg ring ring-primary ring-offset-base-100 ring-offset-2">
+                        <span class="text-4xl font-black" x-text="profileData?.username.charAt(0).toUpperCase()"></span>
+                    </div>
+                </div>
+
+                <h2 class="card-title text-3xl font-black text-secondary" x-text="profileData?.username"></h2>
+                <div class="badge badge-accent badge-lg font-bold text-white shadow-sm">
+                    Level <span x-text="profileData?.level" class="ml-1"></span>
+                </div>
+
+                <div class="w-full mt-4">
+                    <div class="flex justify-between text-xs font-bold text-gray-400 mb-1">
+                        <span>XP Progress</span>
+                        <span x-text="profileData?.xp + ' XP'"></span>
+                    </div>
+                    <progress class="progress progress-primary w-full h-3" :value="profileData?.xp % 500"
+                        max="500"></progress>
+                </div>
+
+                <div class="divider my-2"></div>
+
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <div class="bg-base-200 p-3 rounded-xl">
+                        <div class="text-xs font-bold text-gray-500 uppercase">MMR</div>
+                        <div class="text-2xl font-black text-primary" x-text="profileData?.mmr"></div>
+                    </div>
+                    <div class="bg-base-200 p-3 rounded-xl">
+                        <div class="text-xs font-bold text-gray-500 uppercase">Best Streak</div>
+                        <div class="text-2xl font-black text-warning">🔥 <span
+                                x-text="profileData?.highest_streak"></span></div>
+                    </div>
+                    <div class="bg-base-200 p-3 rounded-xl col-span-2">
+                        <div class="text-xs font-bold text-gray-500 uppercase">Avg. Accuracy</div>
+                        <div class="text-3xl font-black text-accent" x-text="profileData?.avg_accuracy + '%'"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl md:col-span-2">
+            <div class="card-body">
+                <h2 class="card-title text-2xl font-black text-gray-500 mb-4">
+                    Recent Adventures
+                </h2>
+
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr class="text-gray-400 border-b-2 border-base-200">
+                                <th>Mode</th>
+                                <th class="text-center">Difficulty</th>
+                                <th class="text-center">Score</th>
+                                <th class="text-right">Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="game in profileData?.history" :key="game.date">
+                                <tr class="hover:bg-base-200/50 transition-colors font-bold border-b border-base-200">
+
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            <div class="text-2xl" x-text="game.mode === 'Zen Mode' ? '🧘' : '⚡'"></div>
+                                            <div>
+                                                <div class="font-bold text-secondary" x-text="game.mode"></div>
+                                                <div class="text-xs font-normal text-gray-400" x-text="game.date"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="badge badge-sm" :class="{
+                                                  'badge-success': game.difficulty === 'Easy',
+                                                  'badge-warning': game.difficulty === 'Medium',
+                                                  'badge-error': game.difficulty === 'Hard'
+                                              }" x-text="game.difficulty"></span>
+                                    </td>
+
+                                    <td class="text-center text-lg text-primary" x-text="game.score"></td>
+
+                                    <td class="text-right">
+                                        <div class="radial-progress text-accent text-xs font-bold"
+                                            :style="'--value:' + game.accuracy + '; --size:2rem;'"
+                                            x-text="Math.round(game.accuracy)"></div>
+                                    </td>
+                                </tr>
+                            </template>
+
+                            <template x-if="profileData?.history.length === 0">
+                                <tr>
+                                    <td colspan="4" class="text-center py-8 text-gray-400">
+                                        No games played yet. Go earn some bananas! 🍌
+                                    </td>
+                                </tr>
+                            </template>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-actions justify-end mt-6">
+                    <button @click="scene = 'menu'" class="btn btn-neutral font-bold">Back to Menu</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

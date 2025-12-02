@@ -1,0 +1,64 @@
+<div class="relative w-full max-w-lg mx-auto mt-11">
+    <div x-show="feedback.show"
+        class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-30"
+        :class="feedback.isCorrect ? 'bg-green-500' : 'bg-red-500'" x-transition:enter="ease-out duration-100"
+        x-transition:leave="ease-in duration-200">
+    </div>
+
+    <div class="flex justify-between items-end mb-2 gap-3">
+        <div
+            class="flex-1 text-center bg-white shadow-md rounded-xl border-2 border-accent p-3 min-h-[70px] flex flex-col justify-center">
+            <p class="text-[10px] font-extrabold uppercase text-accent tracking-widest leading-none mb-1">Score</p>
+            <p class="text-3xl sm:text-4xl font-black text-accent leading-none" x-text="score"></p>
+        </div>
+
+        <div
+            class="flex-1 text-center bg-white shadow-md rounded-xl border-2 border-secondary p-3 min-h-[70px] flex flex-col justify-center">
+            <p class="text-[10px] font-extrabold uppercase text-rose-700 tracking-widest leading-none mb-1">Time</p>
+            <div class="flex items-center justify-center gap-2">
+                <span class="text-3xl sm:text-4xl font-black tabular-nums leading-none"
+                    :class="time < 10 ? 'text-red-600 animate-pulse' : 'text-sky-700'" x-text="formattedTime"></span>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="card bg-white shadow-xl border-b-8 border-primary mb-2 min-h-[200px] flex items-center justify-center relative overflow-visible px-3 z-10">
+
+        <div x-show="streak > 2" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-50" x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-50" class="absolute -top-6 -right-4 z-50">
+
+            <div
+                class="burning-badge text-white font-black px-4 py-2 rounded-full flex flex-col items-center justify-center min-w-[80px]">
+                <span class="text-2xl drop-shadow-md">🔥</span>
+                <span class="text-xs uppercase tracking-widest drop-shadow-sm">Streak</span>
+                <span class="text-3xl leading-none drop-shadow-md" x-text="streak"></span>
+            </div>
+        </div>
+
+        <div x-show="isLoading" class="absolute inset-0 flex items-center justify-center bg-base-100 z-20 rounded-2xl">
+            <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+
+        <div class="card-body text-center w-full flex flex-col justify-center bg-white">
+            <p class="text-sm font-bold text-primary mb-2">Question <span x-text="totalAnswered + 1"></span></p>
+
+            <h2 class="font-black text-primary tracking-tight transition-all duration-300"
+                :class="currentQuestion.text.length > 20 ? 'text-2xl md:text-3xl leading-snug text-left' : 'text-6xl md:text-7xl'"
+                x-text="currentQuestion.text">
+            </h2>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <template x-for="choice in currentQuestion.choices" :key="choice">
+            <button @click="handleAnswer(choice)"
+                class="btn text-primary animate-pump h-24 md:h-32 text-3xl md:text-4xl font-black bg-white hover:bg-primary hover:text-white border-b-4 border-primary active:border-b-0 active:translate-y-1 transition-all rounded-2xl shadow-sm">
+                <span x-text="choice"></span>
+            </button>
+        </template>
+    </div>
+
+</div>

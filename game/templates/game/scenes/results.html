@@ -1,0 +1,41 @@
+<div class="w-full max-w-md mx-auto text-center">
+    <div class="card bg-base-100 shadow-2xl border-t-8 border-primary overflow-hidden mt-11">
+        <div class="card-body p-8">
+            <h2 class="text-3xl font-black text-primary mb-2">Time's Up!</h2>
+            <p class="text-gray-500 font-bold mb-6">Great mental workout!</p>
+
+            <div class="bg-base-200 rounded-2xl p-6 mb-6">
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Final Score</p>
+                <p class="text-6xl font-black text-primary mt-2 drop-shadow-sm" x-text="score"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="stat p-2 place-items-center">
+                    <div class="stat-title text-xs font-bold uppercase  text-gray-500">Answered</div>
+                    <div class="stat-value text-2xl text-secondary" x-text="totalAnswered"></div>
+                </div>
+                <div class="stat p-2 place-items-center">
+                    <div class="stat-title text-xs font-bold uppercase  text-gray-500">Accuracy</div>
+                    <div class="stat-value text-2xl text-accent">
+                        <span x-text="totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0"></span>%
+                    </div>
+                </div>
+                <div class="stat p-2 place-items-center col-span-2 border-t border-base-200 mt-3">
+                    <div class="stat-title text-xs font-bold uppercase  text-gray-500">Best Streak</div>
+                    <div class="stat-value text-2xl text-warning">🔥 <span x-text="highestStreak"></span></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button @click="startQuickPlay();playSFX('click')"
+                    class="btn btn-primary btn-lg w-full text-xl font-black shadow-lg animate-pump">
+                    Play Again
+                </button>
+                <button @click="scene = 'menu';playSFX('click')"
+                    class="btn btn-secondary btn-lg w-full font-bold  text-gray-900">
+                    Back to Menu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

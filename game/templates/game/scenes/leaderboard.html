@@ -1,0 +1,75 @@
+<div class="w-full max-w-4xl mx-auto mt-11">
+
+    <div class="text-center mb-8 animate-pump">
+        <h2 class="text-5xl font-black text-accent drop-shadow-sm stroked-text"> 🏆 Hall of Fame</h2>
+        <p class="text-gray-500 font-bold">The smartest monkeys in the jungle</p>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl border-t-8 border-accent overflow-hidden">
+
+        <div x-show="isLoading" class="p-20 text-center">
+            <span class="loading loading-spinner loading-lg text-accent"></span>
+            <p class="mt-4 font-bold text-gray-400">Polishing trophies...</p>
+        </div>
+
+        <div x-show="!isLoading" class="overflow-x-auto">
+            <table class="table table-lg w-full">
+                <thead class="bg-base-200 text-gray-500 font-bold uppercase tracking-wider">
+                    <tr>
+                        <th class="text-center">Rank</th>
+                        <th>Player</th>
+                        <th class="text-center">Lvl</th>
+                        <th class="text-center">Accuracy</th>
+                        <th class="text-right pr-8">MMR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="player in leaderboard" :key="player.rank">
+                        <tr class="hover:bg-base-200/50 transition-colors font-bold border-b border-base-200">
+
+                            <td class="text-center text-2xl">
+                                <span x-show="player.rank === 1">🥇</span>
+                                <span x-show="player.rank === 2">🥈</span>
+                                <span x-show="player.rank === 3">🥉</span>
+                                <span x-show="player.rank > 3" class="text-gray-400 text-lg"
+                                    x-text="'#' + player.rank"></span>
+                            </td>
+
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar placeholder">
+                                        <div class="bg-neutral text-neutral-content rounded-full w-10">
+                                            <span x-text="player.username.charAt(0).toUpperCase()"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="font-black text-lg text-secondary" x-text="player.username"></div>
+                                        <template x-if="player.username === '{{ user.username }}'">
+                                            <span class="badge badge-xs badge-primary">YOU</span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-ghost font-bold" x-text="player.level"></span>
+                            </td>
+                            <td class="text-center text-gray-500">
+                                <span x-text="player.avg_accuracy + '%'"></span>
+                            </td>
+                            <td class="text-right pr-8">
+                                <span class="text-xl font-black text-primary" x-text="player.mmr"></span>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-6 bg-base-100 border-t border-base-200 flex justify-center">
+            <button @click="scene = 'menu';playSFX('click')" class="btn btn-neutral btn-wide font-bold">
+                Back to Menu
+            </button>
+        </div>
+
+    </div>
+</div>

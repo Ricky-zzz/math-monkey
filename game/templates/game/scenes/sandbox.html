@@ -1,0 +1,138 @@
+<div class="card bg-base-100 shadow-xl w-full max-w-3xl mx-auto border-t-8 border-secondary mt-11">
+    <div class="card-body">
+
+        <h2 class="text-4xl font-black text-center mb-2 text-secondary stroked-text">🧪 The Laboratory</h2>
+        <p class="text-center text-gray-600 font-bold mb-8">Experiment on Selected Topics</p>
+
+        <div class="form-control mb-3">
+            <label class="label"><span class="label-text text-lg font-bold text-gray-600 uppercase tracking-wider">Game
+                    Mode</span></label>
+
+            <div class="grid grid-cols-2 gap-4"> <label
+                    class="cursor-pointer label border-2 rounded-xl p-4 transition-all hover:bg-base-400"
+                    :class="gameConfig.mode === 'timetrial' ? 'border-primary bg-primary/10' : 'border-base-400'">
+                    <div class="flex items-center gap-3">
+                        <input @click="playSFX('pop')" type="radio" name="mode" value="timetrial"
+                            class="radio radio-primary" x-model="gameConfig.mode" />
+                        <div>
+                            <span class="block font-black text-xl">Time Trial </span>
+                            <span class="text-xs font-bold text-gray-600">Ranked • Timer • Lives</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="cursor-pointer label border-2 rounded-xl p-4 transition-all hover:bg-base-400"
+                    :class="gameConfig.mode === 'zen' ? 'border-secondary bg-secondary/10' : 'border-base-400'">
+                    <div class="flex items-center gap-3">
+                        <input @click="playSFX('pop')" type="radio" name="mode" value="zen"
+                            class="radio radio-secondary" x-model="gameConfig.mode" />
+                        <div>
+                            <span class="block font-black text-xl">Zen Mode </span>
+                            <span class="text-xs font-bold text-gray-600">Relaxed • Infinite • Practice</span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-control mb-3">
+            <label class="label"><span
+                    class="label-text text-lg font-bold text-gray-600 uppercase tracking-wider">Difficulty</span></label>
+            <div class="join w-full grid grid-cols-3">
+                <input @click="playSFX('pop')" class="join-item btn btn-outline" type="radio" name="difficulty"
+                    value="easy" aria-label="Easy" x-model="gameConfig.difficulty" />
+                <input @click="playSFX('pop')" class="join-item btn btn-outline" type="radio" name="difficulty"
+                    value="medium" aria-label="Medium" x-model="gameConfig.difficulty" />
+                <input @click="playSFX('pop')" class="join-item btn btn-outline" type="radio" name="difficulty"
+                    value="hard" aria-label="Hard" x-model="gameConfig.difficulty" />
+            </div>
+        </div>
+
+        <div class="form-control mb-8">
+            <label class="label"><span
+                    class="label-text text-lg font-bold text-gray-600 uppercase tracking-wider">Topics</span></label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+
+                <label
+                    class="cursor-pointer border-2 border-base-400 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-accent transition-colors"
+                    :class="gameConfig.topics.includes('addition') ? 'border-accent bg-accent/5' : ''">
+                    <input @click="playSFX('pop')" type="checkbox" class="checkbox checkbox-accent" value="addition"
+                        x-model="gameConfig.topics" />
+                    <span class="font-black text-2xl">+</span>
+                    <span class="text-xs font-bold uppercase">Add</span>
+                </label>
+
+                <label
+                    class="cursor-pointer border-2 border-base-400 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-accent transition-colors"
+                    :class="gameConfig.topics.includes('subtraction') ? 'border-accent bg-accent/5' : ''">
+                    <input @click="playSFX('pop')" type="checkbox" class="checkbox checkbox-accent" value="subtraction"
+                        x-model="gameConfig.topics" />
+                    <span class="font-black text-2xl">-</span>
+                    <span class="text-xs font-bold uppercase">Sub</span>
+                </label>
+
+                <label
+                    class="cursor-pointer border-2 border-base-400 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-accent transition-colors"
+                    :class="gameConfig.topics.includes('multiplication') ? 'border-accent bg-accent/5' : ''">
+                    <input @click="playSFX('pop')" type="checkbox" class="checkbox checkbox-accent"
+                        value="multiplication" x-model="gameConfig.topics" />
+                    <span class="font-black text-2xl">x</span>
+                    <span class="text-xs font-bold uppercase">Mult</span>
+                </label>
+
+                <label
+                    class="cursor-pointer border-2 border-base-400 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-accent transition-colors"
+                    :class="gameConfig.topics.includes('division') ? 'border-accent bg-accent/5' : ''">
+                    <input @click="playSFX('pop')" type="checkbox" class="checkbox checkbox-accent" value="division"
+                        x-model="gameConfig.topics" />
+                    <span class="font-black text-2xl">÷</span>
+                    <span class="text-xs font-bold uppercase">Div</span>
+                </label>
+
+            </div>
+            <p x-show="gameConfig.topics.length === 0"
+                class="text-error text-sm font-bold mt-2 text-center animate-pulse">
+                Please select at least one topic!
+            </p>
+        </div>
+        <div class="form-control mb-3">
+            <label class="label"><span
+                    class="label-text text-lg font-bold text-gray-600 uppercase tracking-wider">Question
+                    Style</span></label>
+            <div class="grid grid-cols-2 gap-3 justify">
+
+                <label
+                    class="cursor-pointer border-2 border-base-200 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-primary transition-colors"
+                    :class="gameConfig.form.includes('numeric') ? 'border-primary bg-primary/5' : ''">
+                    <input type="checkbox" class="checkbox checkbox-primary" value="numeric"
+                        x-model="gameConfig.form" />
+                    <span class="font-black text-xl">1 + 2</span>
+                    <span class="text-xs font-bold uppercase">Numbers</span>
+                </label>
+
+                <label
+                    class="cursor-pointer border-2 border-base-200 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-primary transition-colors"
+                    :class="gameConfig.form.includes('word') ? 'border-primary bg-primary/5' : ''">
+                    <input type="checkbox" class="checkbox checkbox-primary" value="word" x-model="gameConfig.form" />
+                    <span class="font-black text-xl">abc</span>
+                    <span class="text-xs font-bold uppercase">Word</span>
+                </label>
+
+                <div x-show="gameConfig.form.length === 0"
+                    class="col-span-2 text-center text-error font-bold text-xs mt-1">
+                    Select at least one style (or we default to Mixed)
+                </div>
+            </div>
+        </div>
+
+        <div class="card-actions justify-between items-center mt-1 pt-4 border-t border-base-400">
+            <button @click="scene = 'menu';playSFX('click')"
+                class="btn btn-lg btn-warning text-gray-900 font-bold">Cancel</button>
+
+            <button @click="startCustomGame(); playSFX('click')" :disabled="gameConfig.topics.length === 0"
+                class="btn btn-secondary btn-lg shadow-lg font-black text-xl animate-pump">
+                Start Experiment
+            </button>
+        </div>
+    </div>
+</div>

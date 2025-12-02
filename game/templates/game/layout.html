@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" data-theme="cupcake">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="csrf-token" content="{{ csrf_token }}" />
+
+  <title>Math Monkey - Play</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.3/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.0.6/tsparticles.slim.bundle.min.js"></script>
+
+  <style>
+    .animate-spin-slow {
+      animation: spin 10s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes burn {
+      0% {
+        transform: scale(1) rotate(-3deg);
+        box-shadow: 0 0 10px #f59e0b;
+      }
+
+      50% {
+        transform: scale(1.1) rotate(3deg);
+        box-shadow: 0 0 25px #ef4444, 0 0 10px #f59e0b;
+      }
+
+      100% {
+        transform: scale(1) rotate(-3deg);
+        box-shadow: 0 0 10px #f59e0b;
+      }
+    }
+
+    .burning-badge {
+      background: linear-gradient(135deg, #facc15 0%, #f97316 50%, #ef4444 100%);
+      animation: burn 0.8s infinite ease-in-out;
+      border: 4px solid #fff;
+    }
+
+    .stroked-text {
+      -webkit-text-stroke-width: 2px;
+      -webkit-text-stroke-color: black;
+    }
+
+    @keyframes pump {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+
+    .animate-pump {
+      animation: pump 2s infinite ease-in-out;
+    }
+
+    .animate-pump:hover {
+      animation: none;
+      transform: scale(1.05);
+    }
+
+    #tsparticles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    [x-cloak] {
+      display: none !important;
+    }
+
+    .card-pop {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card-pop:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-base-200 relative overflow-x-hidden font-sans selection:bg-primary selection:text-white">
+  <div id="tsparticles"></div>
+  {% block body %}
+
+  {% endblock %}
+
+  <script src="{% static 'game/index.js' %}?v=1.1"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      await tsParticles.load("tsparticles", {
+        particles: {
+          number: {
+            value: 50,
+            density: { enable: true, value_area: 800 }
+          },
+          shape: {
+            type: "char",
+            character: {
+              value: ["+", "-", "×", "÷", "?", "=", "1", "2", "3"],
+              font: "Verdana",
+              style: "",
+              weight: "1000",
+              fill: true
+            }
+          },
+          color: {
+            value: ["#FF5733", "#C70039", "#900C3F", "#581845", "#1d4ed8", "#7e22ce"]
+          },
+          size: {
+            value: 40,
+            random: true,
+            anim: { enable: true, speed: 4, size_min: 30, sync: false }
+          },
+          opacity: {
+            value: 0.9,
+            random: false,
+            anim: { enable: false }
+          },
+          move: {
+            enable: true,
+            speed: 3,
+            direction: "none",
+            random: true,
+            straight: false,
+            out_mode: "out",
+            bounce: false,
+          }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
+          },
+          modes: {
+            repulse: { distance: 100, duration: 0.4 }
+          }
+        },
+        retina_detect: true
+      });
+    });
+  </script>
+</body>
+
+</html>
