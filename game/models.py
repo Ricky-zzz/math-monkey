@@ -47,6 +47,29 @@ class GameRecord(models.Model):
     def __str__(self):
         return f"{self.user} - {self.mode} ({self.score} pts)"
 
+
+class WordProblem(models.Model):
+    TOPIC_CHOICES = [
+        ('addition', 'Addition'),
+        ('subtraction', 'Subtraction'),
+        ('multiplication', 'Multiplication'),
+        ('division', 'Division'),
+    ]
+    
+    DIFFICULTY_CHOICES = [
+        ('easy', 'Easy'),
+        ('medium', 'Medium'),
+        ('hard', 'Hard'),
+    ]
+
+    question_text = models.TextField()
+    answer = models.IntegerField()
+    topic = models.CharField(max_length=20, choices=TOPIC_CHOICES)
+    difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
+
+    def __str__(self):
+        return f"[{self.topic}] {self.question_text[:30]}..."
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

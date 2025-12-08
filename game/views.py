@@ -9,36 +9,82 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 import json
 from django.utils import timezone
-from .models import GameRecord, Profile
+from .models import GameRecord, Profile, WordProblem
 import math
+from .question_data import QUESTIONS_DATA
 
 NAMES = ["Alice", "Bob", "Charlie", "Mia", "Leo", "Lina", "Dino", "Zara", "Ben", "Sara"]
 ITEMS = ["apple", "banana", "coin", "star", "book", "pencil", "cookie", "ball", "flower"]
 
 ADD_TEMPLATES = [
-    "{name} has {a} {item}s. {name2} gives them {b} more. How many {item}s does {name} have now?",
-    "{name} found {a} {item}s in a box and {b} {item}s on the table. How many total?",
-    "There are {a} {item}s on the left and {b} {item}s on the right. How many altogether?"
+    "{name} picked {a} {item}s in the morning and {b} in the afternoon. How many did they pick in total?",
+    "{a} {item}s were on the table, and {b} more were added. How many are there now?",
+    "{name} bought {a} {item}s from one store and {b} from another. How many did they buy altogether?",
+    "{name} counted {a} {item}s in a jar and {b} more in a bag. What is the total number?",
+    "A basket has {a} {item}s. {name} puts {b} more inside. How many are in the basket now?",
+    "{name} grows {a} {item}s in the garden and finds {b} more on the ground. How many do they have?",
+    "There are {a} {item}s on one shelf and {b} on another shelf. How many are there in all?",
+    "{name} collects {a} {item}s today and {b} tomorrow. How many do they collect?",
+    "A box contains {a} {item}s. {b} new {item}s were added. How many does the box have now?",
+    "{name} received {a} {item}s as a gift. Later, {name2} gave them {b} more. How many do they have now?"
 ]
 
 SUB_TEMPLATES = [
-    "{name} had {a} {item}s. They gave {b} to {name2}. How many are left?",
-    "There were {a} {item}s on the shelf. {name} took {b} of them. How many remain?",
-    "{name} has {a} {item}s. {name} needs {b} for a recipe. How many extra {item}s are there?"
+    "{name} starts with {a} {item}s. They used {b}. How many remain?",
+    "There were {a} {item}s in the basket. {name} ate {b}. How many are left?",
+    "{name} had {a} {item}s, but lost {b}. How many do they still have?",
+    "A store had {a} {item}s. It sold {b} today. How many are left?",
+    "{name} collected {a} {item}s but gave {b} to {name2}. How many remain?",
+    "There were {a} {item}s in a jar. {b} fell out. How many are still inside?",
+    "{name} saved {a} {item}s. They spent {b}. How many do they have now?",
+    "A box holds {a} {item}s. Someone removed {b}. How many are still in the box?",
+    "{name} had {a} {item}s for a project but only used {b}. How many are unused?",
+    "{a} {item}s were on the desk. After {name} took {b}, how many remain?"
 ]
 
 MUL_TEMPLATES = [
-    "{name} buys {a} boxes of {item}s. Each box has {b} {item}s inside. How many total?",
-    "There are {a} rows of {item}s. Each row has {b} {item}s. How many in total?",
-    "{name} runs {a} miles every day for {b} days. How many miles did they run?"
+    "{name} has {a} bags with {b} {item}s in each. How many {item}s do they have total?",
+    "There are {a} groups of {item}s, and each group has {b}. How many {item}s are there?",
+    "{name} read {a} pages each day for {b} days. How many pages did they read?",
+    "{name} bought {a} packs of {item}s. Each pack contains {b}. How many {item}s did they buy?",
+    "A garden has {a} rows of plants. Each row has {b} {item}s. How many plants are there?",
+    "A teacher arranged the class into {a} teams with {b} students each. How many students total?",
+    "{name} makes {a} batches of cookies. Each batch uses {b} {item}s. How many {item}s are needed?",
+    "There are {a} shelves, and each shelf has {b} {item}s. How many in total?",
+    "{name} claps {a} times per minute for {b} minutes. How many claps is that?",
+    "Each box holds {b} {item}s. If there are {a} boxes, how many {item}s are there?"
 ]
 
 DIV_TEMPLATES = [
-    "{name} has {a} {item}s. They want to share them equally among {b} friends. How many does each friend get?",
-    "A factory made {a} {item}s and put them into {b} equal packs. How many in each pack?",
-    "{name} has {a} {item}s and needs to put {b} in each bag. How many bags do they need?"
+    "{name} has {a} {item}s and wants to divide them among {b} people. How many does each person get?",
+    "{a} {item}s need to be packed equally into {b} boxes. How many per box?",
+    "{name} baked {a} cookies and places {b} in each bag. How many bags can they fill?",
+    "A total of {a} {item}s are shared among {b} students. How many per student?",
+    "A teacher has {a} {item}s and gives each child {b}. How many children can receive one?",
+    "{name} wants to split {a} {item}s into groups of {b}. How many groups will be formed?",
+    "There are {a} {item}s to distribute into {b} equal piles. How many in each pile?",
+    "A factory produced {a} {item}s and packages them in groups of {b}. How many packages are made?",
+    "{name} collected {a} {item}s and gives {b} to each friend. How many friends can get one share?",
+    "If {a} {item}s are placed equally into {b} rows, how many will be in each row?"
 ]
 
+def seed_db(request):
+    if not request.user.is_superuser:
+        return JsonResponse({'status': 'error', 'message': 'Admins only'}, status=403)
+
+    WordProblem.objects.all().delete()
+
+    problems = []
+    for q_text, ans, topic, diff in QUESTIONS_DATA:
+        problems.append(WordProblem(
+            question_text=q_text,
+            answer=ans,
+            topic=topic,
+            difficulty=diff
+        ))
+    WordProblem.objects.bulk_create(problems)
+    
+    return JsonResponse({'status': 'success', 'count': len(problems)})
 
 @require_http_methods(["GET"])
 def get_questions(request):
@@ -68,25 +114,33 @@ def get_questions(request):
         question_text = ""
         answer = 0
         
-        if topic == 'addition':
-            if mode == 'word':  
-                question_text, answer = generate_word_addition(difficulty)
+        if mode == 'word':
+            db_question = WordProblem.objects.filter(
+                topic=topic, 
+                difficulty=difficulty
+            ).order_by('?').first()
+
+            if db_question:
+                question_text = db_question.question_text
+                answer = db_question.answer
             else:
+                if topic == 'addition':
+                    question_text, answer = generate_word_addition(difficulty)
+                elif topic == 'subtraction':
+                    question_text, answer = generate_word_subtraction(difficulty)
+                elif topic == 'multiplication':
+                    question_text, answer = generate_word_multiplication(difficulty)
+                elif topic == 'division':
+                    question_text, answer = generate_word_division(difficulty)
+
+        else:
+            if topic == 'addition':
                 question_text, answer = generate_addition(difficulty)
-        elif topic == 'subtraction':
-            if mode == 'word':
-                question_text, answer = generate_word_subtraction(difficulty)
-            else:
+            elif topic == 'subtraction':
                 question_text, answer = generate_subtraction(difficulty)
-        elif topic == 'multiplication':
-            if mode == 'word':
-                question_text, answer = generate_word_multiplication(difficulty)
-            else:
+            elif topic == 'multiplication':
                 question_text, answer = generate_multiplication(difficulty)
-        elif topic == 'division':
-            if mode == 'word':
-                question_text, answer = generate_word_division(difficulty)
-            else:
+            elif topic == 'division':
                 question_text, answer = generate_division(difficulty)
         
         choices = generate_choices(answer)
@@ -101,7 +155,6 @@ def get_questions(request):
         })
         
     return JsonResponse(questions, safe=False)
-
 
 def get_random_context():
     """Returns a dict with random name, name2, and item."""
@@ -123,8 +176,6 @@ def generate_choices(answer):
     choices_list = list(choices)
     random.shuffle(choices_list)
     return choices_list
-
-# --- NUMERIC GENERATORS ---
 
 def generate_addition(difficulty):
     if difficulty == 'easy':
@@ -166,13 +217,8 @@ def generate_division(difficulty):
     dividend = answer * divisor
     return f"{dividend} ÷ {divisor}", answer
 
-# --- WORD GENERATORS ---
-
 def generate_word_addition(difficulty):
-    # Reuse numeric logic for numbers to keep difficulty consistent
     _, answer = generate_addition(difficulty)
-    # Reverse engineer a and b isn't easy with random, so let's regen simple nums
-    # Or just copy the logic:
     if difficulty == 'easy':
         a, b = random.randint(1, 10), random.randint(1, 10)
     elif difficulty == 'medium':
