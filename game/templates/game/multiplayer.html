@@ -1,0 +1,467 @@
+{% extends 'game/layout.html' %} {% block body %}
+<div
+  x-data="mathBattle('{{ user.username }}')"
+  @click="startMusicOnInteraction()"
+  @keydown="startMusicOnInteraction()"
+  class="min-h-screen flex flex-col items-center justify-center p-2 relative overflow-hidden"
+>
+  <div
+    x-show="scene === 'lobby'"
+    class="card bg-base-100 shadow-2xl w-full max-w-lg border-t-8 border-accent"
+  >
+    <div class="card-body text-center">
+      <h1 class="text-4xl font-black text-secondary mb-2">⚔️ Math Battle</h1>
+      <p class="text-gray-500 mb-6">Enter a Room Code</p>
+      <input
+        type="text"
+        x-model="roomCode"
+        placeholder="ex: ROOM1"
+        class="input input-bordered input-lg w-full text-center uppercase font-black tracking-widest mb-4"
+      />
+      <div class="flex gap-4">
+        <a href="{% url 'play' %}" class="btn btn-error flex-1">Back</a>
+        <button
+          @click="joinRoom()"
+          :disabled="!roomCode"
+          class="btn btn-accent flex-1 font-bold"
+        >
+          Enter Arena
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div x-show="scene === 'waiting'" style="display: none" class="text-center">
+    <span
+      class="loading loading-ring loading-lg text-primary scale-150 mb-4"
+    ></span>
+    <h2 class="text-3xl font-bold text-gray-600">Waiting for Opponent...</h2>
+    <p class="text-gray-400 mt-2">
+      Room:
+      <span x-text="roomCode" class="font-mono bg-base-200 px-2 rounded"></span>
+    </p>
+  </div>
+
+  <div
+    x-show="scene === 'countdown'"
+    style="display: none"
+    class="flex flex-col items-center justify-center min-h-[50vh]"
+  >
+    <h1
+      class="text-9xl font-black text-accent transition-all duration-300 transform"
+      x-text="countdownValue > 0 ? countdownValue : 'GO!'"
+      :class="countdownValue > 0 ? 'scale-100' : 'scale-150 text-red-500'"
+    ></h1>
+  </div>
+
+  <div
+    x-show="scene === 'battle'"
+    style="display: none"
+    class="w-full max-w-lg transition-transform duration-100"
+    :class="{'animate-shake': opponentAttacking}"
+  >
+    <div
+      class="flex justify-between items-center bg-gray-800 text-white p-3 rounded-xl mb-4 shadow-lg border-2 border-gray-600"
+    >
+      <div class="flex items-center gap-3">
+        <div class="avatar placeholder">
+          <div class="bg-error text-error-content rounded-full w-10">
+            <span class="text-xl">VS</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase">Opponent</p>
+          <p class="font-black text-lg leading-none">THE ENEMY</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="text-xs text-gray-400 font-bold uppercase">Time (HP)</p>
+        <p
+          class="text-2xl font-black leading-none tabular-nums"
+          :class="opponentTime <= 20 ? 'text-red-500' : 'text-white'"
+          x-text="opponentTime"
+        ></p>
+        <div class="w-24 h-2 bg-gray-600 rounded-full mt-1 overflow-hidden">
+          <div
+            class="h-full bg-error transition-all duration-300"
+            :style="`width: ${(opponentTime / 60) * 100}%`"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative w-full">
+      <div
+        x-show="feedback.show"
+        class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-30"
+        :class="feedback.isCorrect ? 'bg-green-500' : 'bg-red-500'"
+        x-transition:leave="ease-in duration-200"
+      ></div>
+
+      <div
+        x-show="opponentAttacking"
+        class="fixed inset-0 z-50 pointer-events-none bg-red-600 opacity-40"
+        x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-40"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-40"
+        x-transition:leave-end="opacity-0"
+      ></div>
+
+      <div class="flex justify-between items-end mb-2 gap-3">
+        <div
+          class="flex-1 text-center bg-white shadow-md rounded-xl border-2 border-accent p-3 min-h-[70px] flex flex-col justify-center"
+        >
+          <p
+            class="text-[10px] font-extrabold uppercase text-accent tracking-widest leading-none mb-1"
+          >
+            Score
+          </p>
+          <p
+            class="text-3xl sm:text-4xl font-black text-accent leading-none"
+            x-text="score"
+          ></p>
+        </div>
+
+        <div
+          class="flex-1 text-center bg-white shadow-md rounded-xl border-2 border-secondary p-3 min-h-[70px] flex flex-col justify-center"
+        >
+          <p
+            class="text-[10px] font-extrabold uppercase text-rose-700 tracking-widest leading-none mb-1"
+          >
+            Time (HP)
+          </p>
+          <div class="flex items-center justify-center gap-2">
+            <span
+              class="text-3xl sm:text-4xl font-black tabular-nums leading-none transition-transform duration-100"
+              :class="{'text-red-600 scale-125': takingDamage, 'text-sky-700': !takingDamage}"
+              x-text="formattedTime"
+            ></span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="card bg-white shadow-xl border-b-8 border-primary mb-2 min-h-[200px] flex items-center justify-center relative overflow-visible px-3 z-10"
+      >
+        <div
+          x-show="streak > 2"
+          class="absolute -top-6 -right-4 z-50 animate-bounce"
+        >
+          <div
+            class="bg-orange-500 text-white font-black px-4 py-2 rounded-full flex flex-col items-center justify-center min-w-[80px] shadow-lg border-2 border-white"
+          >
+            <span class="text-2xl drop-shadow-md">🔥</span>
+            <span class="text-xs uppercase tracking-widest drop-shadow-sm"
+              >Streak</span
+            >
+            <span
+              class="text-3xl leading-none drop-shadow-md"
+              x-text="streak"
+            ></span>
+          </div>
+        </div>
+
+        <div
+          x-show="isLoading"
+          class="absolute inset-0 flex items-center justify-center bg-base-100 z-20 rounded-2xl"
+        >
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+
+        <div
+          class="card-body text-center w-full flex flex-col justify-center bg-white"
+        >
+          <p class="text-sm font-bold text-primary mb-2">
+            Question <span x-text="totalAnswered + 1"></span>
+          </p>
+          <h2
+            class="font-black text-primary tracking-tight"
+            :class="currentQuestion.text.length > 20 ? 'text-2xl leading-snug text-left' : 'text-6xl'"
+            x-text="currentQuestion.text"
+          ></h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <template x-for="choice in currentQuestion.choices" :key="choice">
+          <button
+            @click="handleAnswer(choice)"
+            class="btn text-primary h-24 md:h-32 text-3xl md:text-4xl font-black bg-white hover:bg-primary hover:text-white border-b-4 border-primary active:border-b-0 active:translate-y-1 transition-all rounded-2xl shadow-sm"
+          >
+            <span x-text="choice"></span>
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <div
+    x-show="scene === 'gameover'"
+    style="display: none"
+    class="text-center card bg-base-100 shadow-2xl p-8 max-w-md w-full border-t-8 border-primary"
+  >
+    <h1 class="text-6xl mb-4" x-text="wonGame ? '🏆' : '💀'"></h1>
+    <h2
+      class="text-4xl font-black mb-2"
+      :class="wonGame ? 'text-accent' : 'text-gray-500'"
+      x-text="wonGame ? 'VICTORY!' : 'DEFEATED'"
+    ></h2>
+    <p
+      class="text-lg font-bold text-gray-400 mb-6"
+      x-text="wonGame ? 'You survived the math battle.' : 'You ran out of time.'"
+    ></p>
+    <a
+      href="{% url 'multiplayer' %}"
+      class="btn btn-primary btn-lg w-full font-black"
+      >Play Again</a
+    >
+  </div>
+</div>
+
+<script>
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("mathBattle", (username) => ({
+      scene: "lobby",
+      roomCode: "",
+      socket: null,
+      currentUser: username,
+      countdownValue: 3,
+
+      questions: [],
+      currentQuestionIndex: 0,
+      time: 60,
+      opponentTime: 60,
+      score: 0,
+      streak: 0,
+      totalAnswered: 0,
+
+      isMuted: localStorage.getItem("mm_muted") === "true",
+      currentBGM: null,
+      sounds: {
+        correct: new Audio("/static/sounds/correct.mp3"),
+        incorrect: new Audio("/static/sounds/incorrect.mp3"),
+        gameover: new Audio("/static/sounds/gameover.mp3"),
+        win: new Audio("/static/sounds/win.mp3"),
+        bg_menu: new Audio("/static/sounds/bg3.mp3"),
+        bg_fast: new Audio("/static/sounds/bg1.mp3"),
+      },
+
+      isLoading: false,
+      feedback: { show: false, isCorrect: true },
+      takingDamage: false,
+      opponentAttacking: false,
+      wonGame: false,
+
+      get formattedTime() {
+        return this.time;
+      },
+
+      get currentQuestion() {
+        return (
+          this.questions[this.currentQuestionIndex] || {
+            text: "Loading...",
+            choices: [],
+          }
+        );
+      },
+
+      startMusicOnInteraction() {
+        if (
+          this.scene === "lobby" &&
+          (!this.currentBGM || this.currentBGM.paused)
+        ) {
+          this.playBGM("bg_menu");
+        }
+      },
+
+      joinRoom() {
+        if (!this.roomCode) return;
+        this.roomCode = this.roomCode.trim().toUpperCase();
+        this.scene = "waiting";
+
+        if (!this.currentBGM || this.currentBGM.paused) {
+          this.playBGM("bg_menu");
+        }
+
+        setTimeout(() => {
+          this.playBGM("bg_fast");
+        }, 100);
+
+        this.fetchQuestions();
+
+        const protocol =
+          window.location.protocol === "https:" ? "wss://" : "ws://";
+        const wsUrl = `${protocol}${window.location.host}/ws/battle/${this.roomCode}/`;
+
+        this.socket = new WebSocket(wsUrl);
+
+        this.socket.onmessage = (e) => {
+          const data = JSON.parse(e.data);
+
+          if (data.type === "game_start") {
+            this.startCountdown();
+          }
+
+          if (data.type === "damage" && data.attacker !== this.currentUser) {
+            this.takeDamage(10);
+            this.opponentAttacking = true;
+            setTimeout(() => (this.opponentAttacking = false), 1000);
+          }
+
+          if (data.type === "hp_update" && data.player !== this.currentUser) {
+            this.opponentTime = data.hp;
+          }
+
+          if (data.type === "game_over") {
+            if (data.loser !== this.currentUser) {
+              this.finishGame(true);
+            }
+          }
+        };
+      },
+
+      async fetchQuestions() {
+        this.isLoading = true;
+        try {
+          const res = await fetch(
+            `/api/questions/?difficulty=hard&topics=mixed&count=50`
+          );
+          this.questions = await res.json();
+        } catch (e) {
+          console.error(e);
+        }
+        this.isLoading = false;
+      },
+
+      startCountdown() {
+        this.scene = "countdown";
+        this.countdownValue = 3;
+
+        const timer = setInterval(() => {
+          this.countdownValue--;
+          if (this.countdownValue < 0) {
+            clearInterval(timer);
+            this.startGame();
+          }
+        }, 1000);
+      },
+
+      startGame() {
+        this.scene = "battle";
+        this.playBGM("bg_fast");
+        this.time = 60;
+        this.opponentTime = 60;
+        this.score = 0;
+        this.currentQuestionIndex = 0;
+      },
+
+      handleAnswer(choice) {
+        const isCorrect = choice === this.currentQuestion.answer;
+        this.totalAnswered++;
+
+        if (isCorrect) {
+          this.socket.send(JSON.stringify({ action: "attack" }));
+          this.playSFX("correct");
+
+          this.streak++;
+          this.score += 100;
+          this.feedback = { show: true, isCorrect: true };
+
+          const healAmount = 3;
+          this.time = Math.min(this.time + healAmount, 60);
+          this.socket.send(
+            JSON.stringify({ action: "hp_update", hp: this.time })
+          );
+        } else {
+          this.takeDamage(5);
+          this.streak = 0;
+          this.feedback = { show: true, isCorrect: false };
+        }
+
+        setTimeout(() => {
+          this.feedback.show = false;
+        }, 300);
+        this.currentQuestionIndex++;
+
+        if (this.questions.length - this.currentQuestionIndex < 3)
+          this.fetchQuestions();
+      },
+
+      takeDamage(amount) {
+        this.time -= amount;
+        this.playSFX("incorrect");
+
+        this.socket.send(
+          JSON.stringify({ action: "hp_update", hp: this.time })
+        );
+
+        this.takingDamage = true;
+        setTimeout(() => (this.takingDamage = false), 200);
+
+        if (this.time <= 0) {
+          this.time = 0;
+          this.socket.send(JSON.stringify({ action: "player_died" }));
+          this.finishGame(false);
+        }
+      },
+
+      finishGame(iWon) {
+        this.scene = "gameover";
+        this.wonGame = iWon;
+        this.stopBGM();
+
+        if (iWon) this.playSFX("win");
+        else this.playSFX("gameover");
+
+        this.socket.close();
+      },
+
+      playSFX(key) {
+        const sound = this.sounds[key];
+        if (sound) {
+          const clone = sound.cloneNode();
+          clone.volume = this.isMuted ? 0 : 0.5;
+          clone.play().catch((e) => console.warn("SFX play failed:", key, e));
+        }
+      },
+
+      playBGM(key) {
+        const newTrack = this.sounds[key];
+        if (!newTrack) return;
+
+        if (this.currentBGM === newTrack && !this.currentBGM?.paused) return;
+
+        if (this.currentBGM) {
+          this.currentBGM.pause();
+          this.currentBGM.currentTime = 0;
+        }
+
+        this.currentBGM = newTrack;
+        newTrack.loop = true;
+        newTrack.volume = this.isMuted ? 0 : 0.3;
+        newTrack.play().catch((e) => {
+          console.log("BGM play failed (user interaction may be required):", e);
+        });
+      },
+
+      stopBGM() {
+        if (this.currentBGM) {
+          this.currentBGM.pause();
+          this.currentBGM.currentTime = 0;
+        }
+      },
+
+      init() {
+        this.sounds.bg_menu.loop = true;
+        this.sounds.bg_menu.volume = 0.3;
+        this.sounds.bg_fast.loop = true;
+        this.sounds.bg_fast.volume = 0.3;
+
+        this.playBGM("bg_menu");
+      },
+    }));
+  });
+</script>
+{% endblock %}

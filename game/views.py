@@ -86,6 +86,11 @@ def seed_db(request):
     
     return JsonResponse({'status': 'success', 'count': len(problems)})
 
+def multiplayer_view(request):
+    if not request.user.is_authenticated:
+        return redirect('auth')
+    return render(request, 'game/multiplayer.html')
+
 @require_http_methods(["GET"])
 def get_questions(request):
     difficulty = request.GET.get('difficulty', 'medium')
@@ -159,7 +164,7 @@ def get_questions(request):
 def get_random_context():
     """Returns a dict with random name, name2, and item."""
     name1 = random.choice(NAMES)
-    name2 = random.choice([n for n in NAMES if n != name1]) # Ensure different names
+    name2 = random.choice([n for n in NAMES if n != name1]) 
     item = random.choice(ITEMS)
     return name1, name2, item
 
@@ -398,7 +403,6 @@ def get_leaderboard(request):
         })
         
     return JsonResponse(leaderboard, safe=False)
-
 
 
 @require_http_methods(["GET"])

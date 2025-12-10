@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/leaderboard/', views.get_leaderboard, name='get_leaderboard'),
     path('api/profile/', views.get_user_profile, name='get_user_profile'),
     path('seed_db/', views.seed_db, name='seed_db'),
+    path('multiplayer/', views.multiplayer_view, name='multiplayer'),
 ]

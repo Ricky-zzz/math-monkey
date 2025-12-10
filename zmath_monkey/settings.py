@@ -25,12 +25,17 @@ SECRET_KEY = 'django-insecure-)whc96()n_=%rop_nl#n%zg*za*dvb4mo!kt4p*5=o%jjhi66$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://bobbi-unsheer-enedina.ngrok-free.dev',  
+    'https://*.ngrok-free.dev',                      
+    'https://*.ngrok-free.app',                      
+]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'game',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -68,6 +74,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'zmath_monkey.wsgi.application'
+ASGI_APPLICATION = 'zmath_monkey.asgi.application' 
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database
@@ -121,3 +134,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# settings.py
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
