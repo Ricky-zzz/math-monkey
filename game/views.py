@@ -104,7 +104,11 @@ def get_questions(request):
     if topics_param == 'mixed':
         selected_topics = ['addition', 'subtraction', 'multiplication', 'division']
     else:
-        selected_topics = topics_param.split(',')
+        raw_topics = topics_param.split(',')
+        selected_topics = [t for t in raw_topics if t != 'mixed' and t]
+        
+        if not selected_topics:
+             selected_topics = ['addition', 'subtraction', 'multiplication', 'division']
 
     questions = []
     

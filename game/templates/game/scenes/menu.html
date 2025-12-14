@@ -1,69 +1,116 @@
-<div class="mt-11  grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-
-    <!-- QUICK PLAY -->
-    <button @click="startQuickPlay(); playSFX('click')"
-        class="card-pop animate-pump col-span-1 md:col-span-2 relative overflow-hidden rounded-3xl group text-left h-60 md:h-72 shadow-xl bg-gradient-to-br from-secondary to-accent">
-        <div class="absolute top-0 left-0 w-full h-full opacity-10">
-            <div class="absolute -top-10 -left-10 w-40 h-40 bg-white rounded-full mix-blend-overlay blur-3xl"></div>
-            <div class="absolute top-20 right-20 w-32 h-32 bg-yellow-300 rounded-full mix-blend-overlay blur-2xl"></div>
-        </div>
-        <div
-            class="absolute -right-6 -bottom-8 text-[9rem] opacity-30 rotate-12 group-hover:rotate-0 transition-transform duration-500 select-none">
-            🚀
-        </div>
-
-        <div class="card-body justify-center items-center md:items-start z-10 p-6 md:p-10">
-            <h2
-                class="text-5xl md:text-7xl font-black drop-shadow-md tracking-tighter leading-none text-white stroked-text">
-                QUICK PLAY
-            </h2>
-
-            <p class="text-lg md:text-2xl font-bold mt-1 md:mt-2 tracking-wide text-white">
-                Ranked • Time Limit • Earn XP
-            </p>
-            <div
-                class="mt-5 inline-flex items-center bg-white text-primary px-4 py-2 rounded-full font-black text-lg uppercase tracking-wider shadow-lg hover:bg-primary hover:text-white transform group-hover:scale-105 transition-transform sm:px-9 sm:py-3 sm:text-xl sm:tracking-widest">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-6 mt-1 ">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                </svg>
-                PLAY
-            </div>
-
-        </div>
-    </button>
-
-    <!-- SANDBOX -->
-    <button @click="scene = 'sandbox'; playSFX('click')"
-        class="card-pop card bg-base-100 border-b-8 border-secondary group h-48 md:h-56 shadow-lg rounded-3xl">
-        <div class="card-body items-center justify-center text-center p-4">
-            <div class="text-6xl mb-2 group-hover:scale-110 transition-transform filter drop-shadow-sm">🧪</div>
-            <h2 class="card-title text-3xl md:text-4xl font-black text-secondary tracking-tight stroked-text">Laboratory
-            </h2>
-            <p class="text-secondary font-bold text-sm md:text-base">Zen Mode • Custom Rules</p>
-        </div>
-    </button>
-
-    <!-- LEADERBOARD -->
-    <button @click="getLeaderboard(); playSFX('click')"
-        class="card-pop card bg-base-100 border-b-8 border-accent group h-48 md:h-56 shadow-lg rounded-3xl">
-        <div class="card-body items-center justify-center text-center p-4">
-            <div class="text-6xl mb-2 group-hover:scale-110 transition-transform filter drop-shadow-sm">🏆</div>
-            <h2 class="card-title text-3xl md:text-4xl font-black text-accent tracking-tight stroked-text">Hall of Fame
-            </h2>
-            <p class="text-accent font-bold text-sm md:text-base">Top Players • Leaderboards</p>
-        </div>
-    </button>
-
-    <!-- Multiplayer -->
-<a href="{% url 'multiplayer' %}"
-    class="card-pop card bg-neutral text-neutral-content group h-48 md:h-56 shadow-lg rounded-3xl">
-    <div class="card-body items-center justify-center text-center p-4">
-        <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">⚔️</div>
-        <h2 class="card-title text-3xl md:text-4xl font-black tracking-tight">VS Mode</h2>
-        <p class="font-bold text-sm md:text-base opacity-70">1v1 Multiplayer</p>
+<div class="mt-11 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+  <!-- QUICK PLAY -->
+  <button
+    @click="startQuickPlay(); playSFX('click')"
+    class="card-pop animate-pump col-span-1 md:col-span-2 relative overflow-hidden rounded-3xl group text-left h-60 md:h-72 shadow-xl bg-gradient-to-br from-secondary to-accent"
+  >
+    <div class="absolute top-0 left-0 w-full h-full opacity-10">
+      <div
+        class="absolute -top-10 -left-10 w-40 h-40 bg-white rounded-full mix-blend-overlay blur-3xl"
+      ></div>
+      <div
+        class="absolute top-20 right-20 w-32 h-32 bg-yellow-300 rounded-full mix-blend-overlay blur-2xl"
+      ></div>
     </div>
-</a>
+    <div
+      class="absolute -right-6 -bottom-8 text-[9rem] opacity-30 rotate-12 group-hover:rotate-0 transition-transform duration-500 select-none"
+    >
+      🚀
+    </div>
 
+    <div
+      class="card-body justify-center items-center md:items-start z-10 p-6 md:p-10"
+    >
+      <h2
+        class="text-5xl md:text-7xl font-black drop-shadow-md tracking-tighter leading-none text-white stroked-text"
+      >
+        QUICK PLAY
+      </h2>
+
+      <p
+        class="text-lg md:text-2xl font-bold mt-1 md:mt-2 tracking-wide text-white"
+      >
+        Ranked • Time Limit • Earn XP
+      </p>
+      <div
+        class="mt-5 inline-flex items-center bg-white text-primary px-4 py-2 rounded-full font-black text-lg uppercase tracking-wider shadow-lg hover:bg-primary hover:text-white transform group-hover:scale-105 transition-transform sm:px-9 sm:py-3 sm:text-xl sm:tracking-widest"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-6 mt-1"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+          />
+        </svg>
+        PLAY
+      </div>
+    </div>
+  </button>
+
+  <!-- SANDBOX -->
+  <button
+    @click="scene = 'sandbox'; playSFX('click')"
+    class="card-pop card bg-base-100 border-b-8 border-secondary group h-48 md:h-56 shadow-lg rounded-3xl"
+  >
+    <div class="card-body items-center justify-center text-center p-4">
+      <div
+        class="text-6xl mb-2 group-hover:scale-110 transition-transform filter drop-shadow-sm"
+      >
+        🧪
+      </div>
+      <h2
+        class="card-title text-3xl md:text-4xl font-black text-secondary tracking-tight stroked-text"
+      >
+        Laboratory
+      </h2>
+      <p class="text-secondary font-bold text-sm md:text-base">
+        Zen Mode • Custom Rules
+      </p>
+    </div>
+  </button>
+
+  <!-- LEADERBOARD -->
+  <button
+    @click="getLeaderboard(); playSFX('click')"
+    class="card-pop card bg-base-100 border-b-8 border-accent group h-48 md:h-56 shadow-lg rounded-3xl"
+  >
+    <div class="card-body items-center justify-center text-center p-4">
+      <div
+        class="text-6xl mb-2 group-hover:scale-110 transition-transform filter drop-shadow-sm"
+      >
+        🏆
+      </div>
+      <h2
+        class="card-title text-3xl md:text-4xl font-black text-accent tracking-tight stroked-text"
+      >
+        Hall of Fame
+      </h2>
+      <p class="text-accent font-bold text-sm md:text-base">
+        Top Players • Leaderboards
+      </p>
+    </div>
+  </button>
+
+  <!-- Multiplayer -->
+  <a
+    href="{% url 'multiplayer' %}"
+    class="card-pop card bg-neutral text-neutral-content group h-48 md:h-56 shadow-lg rounded-3xl"
+  >
+    <div class="card-body items-center justify-center text-center p-4">
+      <div class="text-6xl mb-2 group-hover:scale-110 transition-transform">
+        ⚔️
+      </div>
+      <h2 class="card-title text-3xl md:text-4xl font-black tracking-tight">
+        VS Mode
+      </h2>
+      <p class="font-bold text-sm md:text-base opacity-70">Multiplayer</p>
+    </div>
+  </a>
 </div>
